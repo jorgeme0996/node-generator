@@ -1,10 +1,19 @@
 (() => {
     class Node {
       constructor(){
+        this._title = null
         this._question = null;
         this._options = new Map();
         this._from = null;
         this._isFinal = false;
+      }
+
+      get title(){
+        return this._title;
+      }
+  
+      set title(data){
+        this._title = data;
       }
   
       get isFinal(){

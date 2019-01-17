@@ -39,13 +39,52 @@
       paper-dialog#scrolling {
         max-width: 500px;
       }
+      button.info {
+        border: transparent;
+        background-color: brown;
+        color: white;
+        height: 20px;
+        width: 20px;
+        border-radius: 50%;
+        transform: scale(2.1);
+        text-decoration: none;
+        margin-bottom: 15px;
+      }
+      button.info:hover {
+        cursor: pointer;
+        transform: scale(2.2)
+      }
+      div#container {
+        display: flex;
+        flex-direction: column;
+      }
+      div#info-cont {
+        width: auto;
+        height: 50px;
+        background: antiquewhite;
+        border-radius: 15px;
+        padding-bottom: 40px;
+        padding-left: 15px;
+      }
     </style>
 
-    <dom-repeat items="[[buttons]]" as="button">
-      <template>
-        <paper-button class="generator" id="[[button]]" on-tap="configNode">[[button]]</paper-button>
-      </template>
-    </dom-repeat>
+    <div id="container">
+      <dom-repeat items="[[buttons]]" as="button">
+        <template>
+          <paper-button class="generator" id="[[button]]" on-tap="configNode">[[button]]</paper-button>
+          <div id="info-cont" hidden=[[hidden]]>
+            <h3>Texto del bot: [[infoNode.question]]</h3>
+            <h3>Opciones del Nodo:</h3>
+            <p></p>
+          </div>
+          <button class="info" id="[[button]]" on-tap="info">+</button>
+        </template>
+      </dom-repeat>
+      <paper-button>Genear chat-bot</paper-button>
+    </div>
+   
+
+
 
     <paper-dialog id="scrolling">
       
@@ -105,6 +144,18 @@
           textBot: {
             type: String,
             value: ''
+          },
+          nodes: {
+            type: Array,
+            value: []
+          },
+          hidden: {
+            type: Boolean,
+            value: true
+          },
+          infoNode: {
+            type: Node,
+            value: new Polymer.Node()
           }
         };
       }
@@ -127,6 +178,9 @@
       saveQuestion(){
         this.editingNode.question = this.textBot;
         this.set('textBot', '');
+      }
+      info(event){
+        console.log(event.target.id);
       }
     }
 
