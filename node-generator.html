@@ -1,0 +1,132 @@
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../paper-dialog/paper-dialog.html">
+<link rel="import" href="../paper-dialog-behavior/paper-dialog-behavior.html">
+<link rel="import" href="../paper-dialog-scrollable/paper-dialog-scrollable.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<script src="./model/Node.js"></script>
+
+<dom-module id="node-generator">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+      paper-button.generator {
+        background-color: var(--button-background-color, #673AB7);
+        color: var(--button-letters-color, white);
+      }
+      strong {
+        font-size: 30px;
+      }
+      div.op-inputs{
+        display: flex;
+        justify-content: space-around;
+      }
+      paper-button#plus {
+        background-color: #66bb6a;
+
+      }
+      paper-button#minor {
+        background-color: #FBC02D;
+      }
+      paper-button.addOrRemove {
+        color: white;
+        margin-top: 20px;
+        width: 100px;
+        height: 10px;
+      }
+    </style>
+
+    <dom-repeat items="[[buttons]]" as="button">
+      <template>
+        <paper-button class="generator" id="[[button]]" on-tap="configNode">[[button]]</paper-button>
+      </template>
+    </dom-repeat>
+
+    <paper-dialog id="scrolling">
+      
+      <h2>Configuración del nodo</h2>
+      <paper-dialog-scrollable>
+        <p><strong>1.</strong> El siguiente texto que escribiras es el texto que el bot le dira al usuario en este nodo.</p>
+        <paper-input label="Texto" value={{textBot}}></paper-input>
+        <paper-button autofocus on-tap="saveQuestion">Guardar texto del nodo</paper-button>
+        <p><strong>2.</strong> Los siguientes botones son para agrefar opciones al bot, mismas que apareceran como botones dentro del chat-bot, para que el usuario interactue con ellos, estos botones tienen una conexción con el siguiente nodo con el que interactuara el usuario.</p>
+        <paper-button class="addOrRemove" id="minor" on-tap="removeOp"><strong>-</strong></paper-button>
+        <div class="op-inputs">
+          <paper-input label="botón" value="{{opBtn}}"></paper-input>
+          <paper-input label="Nodo al que ira la opción" value="{{opNode}}"></paper-input>
+          <paper-button on-tap="addOpNode">Guardar opción</paper-button>
+        </div>
+      </paper-dialog-scrollable>
+      <div class="buttons">
+        <paper-button dialog-dismiss>Cancelar</paper-button>
+      </div>
+    </paper-dialog>
+
+  </template>
+
+  <script>
+    class NodeGenerator extends Polymer.Element {
+      static get is() { return 'node-generator'; }
+      static get properties() {
+        return {
+          editingNode: {
+            type: Node,
+            value: new Polymer.Node()
+          },
+          buttonsAndNodes: {
+            type: Map,
+            value: new Map()
+          },
+          contId: {
+            type: Number,
+            value: 1
+          },
+          contOp: {
+            type: Number,
+            value: 0
+          },
+          buttons: {
+            type: Array,
+            value: ['Bienvenida']
+          },
+          opBtn: {
+            type: String,
+            value: ''
+          },
+          opNode: {
+            type: String,
+            value: ''
+          },
+          textBot: {
+            type: String,
+            value: ''
+          }
+        };
+      }
+
+      configNode(event){
+        this.$.scrolling.open();
+        const Node = new Polymer.Node();
+        this.buttonsAndNodes.set(event.target.id, Node);
+        this.set('editingNode', this.buttonsAndNodes.get(event.target.id));
+        console.log(this.buttonsAndNodes);
+      }
+      addOpNode(){
+        const newBtn = [this.opNode];
+        const nodeOp = new Polymer.Node();
+        this.buttons = [...this.buttons, this.opNode];
+        this.editingNode.options.set(this.opBtn, nodeOp);
+        this.set('opNode', '');
+        this.set('opBtn', '');
+      }
+      saveQuestion(){
+        this.editingNode.question = this.textBot;
+        this.set('textBot', '');
+      }
+    }
+
+    window.customElements.define(NodeGenerator.is, NodeGenerator);
+  </script>
+</dom-module>
