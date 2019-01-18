@@ -74,7 +74,7 @@
     <div id="container">
       <dom-repeat items="[[buttons]]" as="button">
         <template>
-          <paper-button class="generator" id="[[button]]" on-tap="configNode">[[button]]</paper-button>
+          <paper-button class="generator" id="[[button.id]]" on-tap="configNode">[[button.button]]</paper-button>
           <div id="info-cont" hidden="true">
             <h3>Texto del bot: [[infoNode.question]]</h3>
             <h3>Opciones del Nodo:</h3>
@@ -84,7 +84,7 @@
               </template>
             </dom-repeat>
           </div>
-          <button class="info" id="[[button]]" on-tap="info">+</button>
+          <button class="info" id="[[button.id]]" on-tap="info">+</button>
         </template>
       </dom-repeat>
       <paper-button on-tap="madeNodes">Genear chat-bot</paper-button>
@@ -138,7 +138,7 @@
           },
           buttons: {
             type: Array,
-            value: ['Bienvenida']
+            value: [{id:'Bienvenida', button:'bienvenida'}]
           },
           opBtn: {
             type: String,
@@ -160,32 +160,53 @@
             type: Node,
             value: new Polymer.Node()
           },
+          lastNode: {
+            type: Node,
+            value: new Polymer.Node()
+          },
           options: {
             type: Array,
             value: []
-          }
+          },
+          button: {
+            type: String,
+            value: ''
+          },
         };
+      }
+
+      ready(){
+        super.ready();
       }
 
       configNode(event){
         this.$.scrolling.open();
-        const Node = new Polymer.Node();
-        this.buttonsAndNodes.set(event.target.id, Node);
-        this.set('editingNode', this.buttonsAndNodes.get(event.target.id));
-      }
-      addOpNode(){
-        const newBtn = [this.opNode];
-        const nodeOp = new Polymer.Node();
-        nodeOp.title = this.opNode;
-        this.buttons = [...this.buttons, this.opNode];
-        this.editingNode.options.set(this.opBtn, nodeOp);
-        this.set('opNode', '');
-        this.set('opBtn', '');
+        if(this.buttonsAndNodes.size < 1){
+          this.set('editingNode', this.editingNode);
+          this.buttonsAndNodes.set(event.target.id, this.editingNode);
+        } else {
+          let nodeactual=this.buttonsAndNodes.get(event.target.id)
+          this.set('editingNode',nodeactual);
+          console.log(this.buttonsAndNodes);
+          console.log(this.editingNode);
+        }
+        
       }
       saveQuestion(){
         this.editingNode.question = this.textBot;
+        this.editingNode.from = 'bot';
         this.set('textBot', '');
       }
+      addOpNode(){
+        const newBtn = [{id: this.opBtn, button: this.opNode}];
+        const nodeOp = new Polymer.Node();
+        this.buttons = [...this.buttons, ...newBtn];
+        this.editingNode.options.set(this.opBtn, nodeOp);
+        this.buttonsAndNodes.set(this.opBtn, nodeOp);
+        this.set('opBtn', '');
+        this.set('opNode', '');
+      }
+
       info(event){
         const options = [];
         event.model.children[3].hidden = !event.model.children[3].hidden;
@@ -204,8 +225,9 @@
         this.dispatchEvent(new CustomEvent('get-nodes',{
           bubbles:false,
           composed:false,
-          detail:this.nodes
+          detail:this.nodes[0]
         }))
+        //console.log(node[0]);
       }
     }
 
